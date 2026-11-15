@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#ffffff">
     <meta name="description" content="summerAI/O — AIの研究・開発と公開実装のポートフォリオ。">
     <title>summerAI/O — AI Research & Engineering</title>
-    <link rel="preload" href="assets/falcon-ascii.webp" as="image">
+    <link rel="preload" href="assets/falcon-flap.gif" as="image">
     <style>
       :root {
         color-scheme: light;
@@ -145,6 +145,7 @@
         height: 100%;
         object-fit: contain;
       }
+      .falcon-picture { display: block; width: 100%; height: 100%; }
       .falcon-noise {
         position: absolute;
         inset: 0;
@@ -376,7 +377,10 @@
         </div>
         <div class="falcon-lane" role="img" aria-label="ASCII文字で描いたハヤブサが一羽、高速で横切る">
           <div class="falcon" id="falcon">
-            <img class="falcon-art" src="assets/falcon-ascii.webp" alt="" width="1500" height="500">
+            <picture class="falcon-picture">
+              <source media="(prefers-reduced-motion: reduce)" srcset="assets/falcon-ascii.webp">
+              <img class="falcon-art" src="assets/falcon-flap.gif" alt="" width="900" height="300">
+            </picture>
             <pre class="falcon-noise" id="falcon-noise" aria-hidden="true"></pre>
           </div>
         </div>
