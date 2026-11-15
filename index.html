@@ -80,7 +80,13 @@
         padding: 125px 0 95px;
         isolation: isolate;
       }
-      .wordmark-wrap { position: relative; width: fit-content; max-width: 100%; }
+      .wordmark-wrap {
+        position: relative;
+        z-index: 2;
+        width: fit-content;
+        max-width: 100%;
+        margin-bottom: clamp(120px, 15vw, 175px);
+      }
       .wordmark {
         position: relative;
         z-index: 1;
@@ -121,9 +127,13 @@
         user-select: none;
       }
       .falcon-lane {
-        position: relative;
-        height: clamp(116px, 16vw, 190px);
-        margin-top: 8px;
+        position: absolute;
+        z-index: 1;
+        top: 48px;
+        left: 50%;
+        width: 100vw;
+        height: clamp(300px, 33vw, 440px);
+        transform: translateX(-50%);
         overflow: hidden;
         pointer-events: none;
       }
@@ -132,7 +142,7 @@
         top: 0;
         left: 50%;
         display: block;
-        width: min(780px, 92vw);
+        width: min(1320px, 150vw);
         height: 100%;
         object-fit: contain;
         object-position: center;
@@ -177,6 +187,8 @@
         100% { opacity: 0; }
       }
       .role-line {
+        position: relative;
+        z-index: 2;
         display: flex;
         align-items: center;
         gap: 24px;
@@ -303,8 +315,9 @@
           font-size: 9px;
           letter-spacing: .08em;
         }
-        .falcon-lane { height: 104px; margin-top: 5px; }
-        .falcon { width: min(440px, 105vw); }
+        .wordmark-wrap { margin-bottom: 135px; }
+        .falcon-lane { top: 78px; height: 250px; }
+        .falcon { width: min(720px, 175vw); }
         .role-line { flex-wrap: wrap; gap: 8px 20px; margin-top: 14px; }
         .role { font-size: 16px; }
         .intro { margin-top: 31px; font-size: 23px; }
@@ -485,14 +498,16 @@
             falcon.style.opacity = "1";
             return;
           }
-          const scrollRange = Math.max(420, window.innerHeight * .9);
+          const scrollRange = Math.max(220, Math.min(360, window.innerHeight * .4));
           const progress = Math.max(0, Math.min(1, window.scrollY / scrollRange));
           const eased = progress * progress * (3 - 2 * progress);
-          const distance = window.innerWidth * .9 + falcon.offsetWidth * .7;
-          falcon.style.setProperty("--flight-x", (distance * eased).toFixed(1) + "px");
-          falcon.style.setProperty("--flight-y", (-36 * eased).toFixed(1) + "px");
-          falcon.style.setProperty("--flight-scale", (1 - .08 * eased).toFixed(3));
-          falcon.style.opacity = String(Math.max(0, Math.min(1, (1 - eased) * 4)));
+          const birdWidth = falcon.offsetWidth;
+          const startX = -window.innerWidth * .5 - birdWidth * .28;
+          const endX = window.innerWidth * .5 + birdWidth * .58;
+          falcon.style.setProperty("--flight-x", (startX + (endX - startX) * eased).toFixed(1) + "px");
+          falcon.style.setProperty("--flight-y", (-55 * eased).toFixed(1) + "px");
+          falcon.style.setProperty("--flight-scale", (1 - .12 * eased).toFixed(3));
+          falcon.style.opacity = String(Math.max(0, Math.min(1, (1 - eased) * 6)));
         }
 
         function requestFalconFlight() {
