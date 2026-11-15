@@ -161,11 +161,34 @@
 
       .work { scroll-margin-top: 30px; }
       .work h2 {
-        margin: 0 0 20px;
+        margin: 0;
         font-size: 28px;
         font-weight: 700;
         line-height: 1.3;
         letter-spacing: -.045em;
+      }
+      .work-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        flex-wrap: wrap;
+        gap: 12px 24px;
+        margin-bottom: 30px;
+      }
+      .work-all {
+        color: var(--accent);
+        font-size: 14px;
+        text-decoration: none;
+      }
+      .work-all:hover { text-decoration: underline; }
+      .work-group + .work-group { margin-top: 38px; }
+      .work-group-title {
+        margin: 0 0 12px;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 650;
+        letter-spacing: .13em;
+        text-transform: uppercase;
       }
       .project-list { border-top: 1px solid var(--line); }
       .project {
@@ -184,6 +207,7 @@
         font-weight: 650;
         letter-spacing: -.038em;
         line-height: 1.4;
+        overflow-wrap: anywhere;
       }
       .project-description {
         color: var(--muted);
@@ -278,23 +302,77 @@
       </section>
 
       <section class="work" id="work" aria-labelledby="work-heading">
-        <h2 id="work-heading">Selected work</h2>
-        <div class="project-list">
-          <a class="project" href="https://github.com/Summer110622/SummerDeltaAttention" target="_blank" rel="noopener noreferrer">
-            <span class="project-name">Summer Delta Attention</span>
-            <span class="project-description">Delta-rule state と KV archive の研究</span>
-            <span class="project-arrow" aria-hidden="true">↗</span>
-          </a>
-          <a class="project" href="https://huggingface.co/summerAIO/Diffusion-Qwen3.8-27B" target="_blank" rel="noopener noreferrer">
-            <span class="project-name">Diffusion-Qwen3.8-27B</span>
-            <span class="project-description">Diffusion 言語モデル</span>
-            <span class="project-arrow" aria-hidden="true">↗</span>
-          </a>
-          <a class="project" href="https://huggingface.co/datasets/summerAIO/LongBook-math-1M" target="_blank" rel="noopener noreferrer">
-            <span class="project-name">LongBook-math-1M</span>
-            <span class="project-description">長文・数学データセット</span>
-            <span class="project-arrow" aria-hidden="true">↗</span>
-          </a>
+        <div class="work-header">
+          <h2 id="work-heading">Selected work</h2>
+          <a class="work-all" href="https://huggingface.co/summerAIO" target="_blank" rel="noopener noreferrer">Hugging Face ↗</a>
+        </div>
+
+        <div class="work-group" aria-labelledby="research-heading">
+          <h3 class="work-group-title" id="research-heading">Research</h3>
+          <div class="project-list">
+            <a class="project" href="https://github.com/Summer110622/SummerDeltaAttention" target="_blank" rel="noopener noreferrer">
+              <span class="project-name">Summer Delta Attention</span>
+              <span class="project-description">Delta-rule state と KV archive の研究</span>
+              <span class="project-arrow" aria-hidden="true">↗</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="work-group" aria-labelledby="models-heading">
+          <h3 class="work-group-title" id="models-heading">Models</h3>
+          <div class="project-list">
+            <a class="project" href="https://huggingface.co/summerAIO/Diffusion-Qwen3.8-27B" target="_blank" rel="noopener noreferrer">
+              <span class="project-name">Diffusion-Qwen3.8-27B</span>
+              <span class="project-description">27B · Masked Diffusion LM</span>
+              <span class="project-arrow" aria-hidden="true">↗</span>
+            </a>
+            <a class="project" href="https://huggingface.co/summerAIO/Diffusion-Qwen3.5-9B" target="_blank" rel="noopener noreferrer">
+              <span class="project-name">Diffusion-Qwen3.5-9B</span>
+              <span class="project-description">9B · Masked Diffusion LM</span>
+              <span class="project-arrow" aria-hidden="true">↗</span>
+            </a>
+            <a class="project" href="https://huggingface.co/summerAIO/Qwen3.8-27B-Longbook27-v2" target="_blank" rel="noopener noreferrer">
+              <span class="project-name">Qwen3.8-27B-Longbook27-v2</span>
+              <span class="project-description">27B · 長文読解・生成モデル</span>
+              <span class="project-arrow" aria-hidden="true">↗</span>
+            </a>
+            <a class="project" href="https://huggingface.co/summerAIO/Qwen3.8-27B-Longbook27-VL-GDN64" target="_blank" rel="noopener noreferrer">
+              <span class="project-name">Longbook27-VL-GDN64</span>
+              <span class="project-description">28B · 長文・マルチモーダル</span>
+              <span class="project-arrow" aria-hidden="true">↗</span>
+            </a>
+            <a class="project" href="https://huggingface.co/summerAIO/Cyber-9B-Qwen-AllGDN-Engram" target="_blank" rel="noopener noreferrer">
+              <span class="project-name">Cyber-9B-Qwen-AllGDN-Engram</span>
+              <span class="project-description">9B · Gated DeltaNet / Engram</span>
+              <span class="project-arrow" aria-hidden="true">↗</span>
+            </a>
+            <a class="project" href="https://huggingface.co/summerAIO/Looped-Qwen-pre" target="_blank" rel="noopener noreferrer">
+              <span class="project-name">Looped-Qwen-pre</span>
+              <span class="project-description">1B · ループ構造の実験モデル</span>
+              <span class="project-arrow" aria-hidden="true">↗</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="work-group" aria-labelledby="datasets-heading">
+          <h3 class="work-group-title" id="datasets-heading">Datasets</h3>
+          <div class="project-list">
+            <a class="project" href="https://huggingface.co/datasets/summerAIO/LongBook-math-1M" target="_blank" rel="noopener noreferrer">
+              <span class="project-name">LongBook-math-1M</span>
+              <span class="project-description">100万件の日本語数学文書</span>
+              <span class="project-arrow" aria-hidden="true">↗</span>
+            </a>
+            <a class="project" href="https://huggingface.co/datasets/summerAIO/LongBook-math-2M" target="_blank" rel="noopener noreferrer">
+              <span class="project-name">LongBook-math-2M</span>
+              <span class="project-description">LongBook 数学データセット</span>
+              <span class="project-arrow" aria-hidden="true">↗</span>
+            </a>
+            <a class="project" href="https://huggingface.co/datasets/summerAIO/cpt-ja-en-hq-100mb" target="_blank" rel="noopener noreferrer">
+              <span class="project-name">cpt-ja-en-hq-100mb</span>
+              <span class="project-description">日英の継続事前学習コーパス</span>
+              <span class="project-arrow" aria-hidden="true">↗</span>
+            </a>
+          </div>
         </div>
       </section>
     </main>
