@@ -6,6 +6,7 @@
     <meta name="theme-color" content="#ffffff">
     <meta name="description" content="summerAI/O — AIの研究・開発と公開実装のポートフォリオ。">
     <title>summerAI/O — AI Research & Engineering</title>
+    <link rel="preload" href="assets/falcon-ascii.webp" as="image">
     <style>
       :root {
         color-scheme: light;
@@ -118,6 +119,40 @@
         white-space: pre;
         pointer-events: none;
         user-select: none;
+      }
+      .falcon-lane {
+        position: relative;
+        height: clamp(116px, 16vw, 190px);
+        margin-top: 8px;
+        overflow: hidden;
+        pointer-events: none;
+      }
+      .falcon {
+        position: absolute;
+        top: 0;
+        left: 0;
+        display: block;
+        width: min(780px, 92vw);
+        height: 100%;
+        object-fit: contain;
+        object-position: center;
+        opacity: 0;
+        will-change: transform, opacity;
+      }
+      .falcon.is-flying {
+        animation: falcon-flight 2.5s cubic-bezier(.35, .08, .78, 1) 2.45s both;
+      }
+      @keyframes falcon-flight {
+        0% {
+          transform: translate3d(-115%, 12px, 0) scale(.86);
+          opacity: 0;
+        }
+        8% { opacity: 1; }
+        72% { opacity: 1; }
+        100% {
+          transform: translate3d(calc(100vw + 115%), -14px, 0) scale(1.06);
+          opacity: 0;
+        }
       }
       .role-line {
         display: flex;
@@ -246,6 +281,9 @@
           font-size: 9px;
           letter-spacing: .08em;
         }
+        .falcon-lane { height: 104px; margin-top: 5px; }
+        .falcon { width: min(440px, 105vw); }
+        .falcon.is-flying { animation-duration: 2.1s; }
         .role-line { flex-wrap: wrap; gap: 8px 20px; margin-top: 14px; }
         .role { font-size: 16px; }
         .intro { margin-top: 31px; font-size: 23px; }
@@ -274,6 +312,13 @@
         }
         .wordmark.is-animating .glyph .resolved { opacity: 1; }
         .wordmark.is-animating .glyph .scrambled, .ascii-cloud { display: none; }
+        .falcon, .falcon.is-flying {
+          left: 50%;
+          transform: translateX(-50%);
+          animation: none;
+          opacity: 1;
+          will-change: auto;
+        }
       }
     </style>
   </head>
@@ -293,9 +338,12 @@
           <pre class="ascii-cloud" id="ascii-cloud" aria-hidden="true"></pre>
           <h1 class="wordmark" id="wordmark" aria-label="summerAI/O">summerAI/O</h1>
         </div>
+        <div class="falcon-lane" role="img" aria-label="ASCII文字で描いたハヤブサが一羽、高速で横切る">
+          <img class="falcon" id="falcon" src="assets/falcon-ascii.webp" alt="" width="1500" height="500">
+        </div>
         <div class="role-line">
           <p class="role">AI Research &amp; Engineering</p>
-          <button class="replay" id="replay" type="button" aria-label="文字アニメーションをもう一度再生">↻ Replay</button>
+          <button class="replay" id="replay" type="button" aria-label="文字とハヤブサのアニメーションをもう一度再生">↻ Replay</button>
         </div>
         <p class="intro">AIを研究し、つくり、公開する。</p>
         <a class="hero-link" href="https://github.com/Summer110622/SummerAI-O" target="_blank" rel="noopener noreferrer">GitHubを見る <span aria-hidden="true">↗</span></a>
@@ -388,6 +436,7 @@
         const symbols = "[]{}|/+#.:*~01";
         const wordmark = document.getElementById("wordmark");
         const cloud = document.getElementById("ascii-cloud");
+        const falcon = document.getElementById("falcon");
         const replay = document.getElementById("replay");
         const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
         const slots = [];
@@ -470,10 +519,14 @@
 
         function startAnimation() {
           cancelAnimationFrame(frameId);
+          falcon.classList.remove("is-flying");
           if (reduceMotion.matches) {
             setFinalState();
             return;
           }
+          // Restart the single flyby together with the diffusion wordmark.
+          void falcon.offsetWidth;
+          falcon.classList.add("is-flying");
           startTime = 0;
           lastScramble = 0;
           wordmark.classList.add("is-animating");
