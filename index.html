@@ -130,24 +130,58 @@
       .falcon {
         position: absolute;
         top: 0;
-        left: 0;
+        left: 50%;
         display: block;
         width: min(780px, 92vw);
         height: 100%;
         object-fit: contain;
         object-position: center;
-        opacity: 0;
+        opacity: 1;
         will-change: transform, opacity;
       }
+      .falcon-art {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+      .falcon-noise {
+        position: absolute;
+        inset: 0;
+        margin: 0;
+        overflow: hidden;
+        color: #606167;
+        font: 9px/9px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        letter-spacing: 1px;
+        white-space: pre;
+        user-select: none;
+        -webkit-mask: url("assets/falcon-ascii.webp") center / contain no-repeat;
+        mask: url("assets/falcon-ascii.webp") center / contain no-repeat;
+      }
+      .falcon.is-flying .falcon-art {
+        animation: falcon-resolve 2.5s steps(18, end) 1.1s both;
+      }
+      .falcon.is-flying .falcon-noise {
+        animation: falcon-denoise 2.5s steps(18, end) 1.1s both;
+      }
       .falcon.is-flying {
-        animation: falcon-flight 2.5s cubic-bezier(.35, .08, .78, 1) 2.45s both;
+        animation: falcon-flight 1.8s cubic-bezier(.3, .02, .75, 1) 3.7s both;
+      }
+      @keyframes falcon-resolve {
+        0% { opacity: 0; filter: blur(7px); }
+        65% { opacity: .72; filter: blur(1.5px); }
+        100% { opacity: 1; filter: blur(0); }
+      }
+      @keyframes falcon-denoise {
+        0% { opacity: .86; }
+        65% { opacity: .45; }
+        100% { opacity: 0; }
       }
       @keyframes falcon-flight {
         0% {
-          transform: translate3d(-115%, 12px, 0) scale(.86);
-          opacity: 0;
+          transform: translate3d(-50%, 0, 0) scale(1);
+          opacity: 1;
         }
-        8% { opacity: 1; }
         72% { opacity: 1; }
         100% {
           transform: translate3d(calc(100vw + 115%), -14px, 0) scale(1.06);
@@ -283,7 +317,7 @@
         }
         .falcon-lane { height: 104px; margin-top: 5px; }
         .falcon { width: min(440px, 105vw); }
-        .falcon.is-flying { animation-duration: 2.1s; }
+        .falcon.is-flying { animation-duration: 1.5s; }
         .role-line { flex-wrap: wrap; gap: 8px 20px; margin-top: 14px; }
         .role { font-size: 16px; }
         .intro { margin-top: 31px; font-size: 23px; }
@@ -319,6 +353,8 @@
           opacity: 1;
           will-change: auto;
         }
+        .falcon-art, .falcon.is-flying .falcon-art { animation: none; opacity: 1; filter: none; }
+        .falcon-noise, .falcon.is-flying .falcon-noise { display: none; }
       }
     </style>
   </head>
@@ -339,7 +375,10 @@
           <h1 class="wordmark" id="wordmark" aria-label="summerAI/O">summerAI/O</h1>
         </div>
         <div class="falcon-lane" role="img" aria-label="ASCII文字で描いたハヤブサが一羽、高速で横切る">
-          <img class="falcon" id="falcon" src="assets/falcon-ascii.webp" alt="" width="1500" height="500">
+          <div class="falcon" id="falcon">
+            <img class="falcon-art" src="assets/falcon-ascii.webp" alt="" width="1500" height="500">
+            <pre class="falcon-noise" id="falcon-noise" aria-hidden="true"></pre>
+          </div>
         </div>
         <div class="role-line">
           <p class="role">AI Research &amp; Engineering</p>
@@ -437,12 +476,26 @@
         const wordmark = document.getElementById("wordmark");
         const cloud = document.getElementById("ascii-cloud");
         const falcon = document.getElementById("falcon");
+        const falconNoise = document.getElementById("falcon-noise");
         const replay = document.getElementById("replay");
         const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
         const slots = [];
         let frameId = 0;
         let startTime = 0;
         let lastScramble = 0;
+        let lastFalconScramble = 0;
+
+        function updateFalconNoise() {
+          const lines = [];
+          for (let row = 0; row < 24; row++) {
+            let line = "";
+            for (let col = 0; col < 115; col++) {
+              line += Math.random() < .12 ? " " : randomSymbol();
+            }
+            lines.push(line);
+          }
+          falconNoise.textContent = lines.join("\n");
+        }
 
         function randomSymbol() {
           return symbols[Math.floor(Math.random() * symbols.length)];
@@ -513,7 +566,12 @@
             updateCloud(progress);
             lastScramble = now;
           }
-          if (progress < 1) frameId = requestAnimationFrame(animate);
+          // The bird's noisy silhouette continues resolving after the wordmark.
+          if (now - lastFalconScramble > 85 && now - startTime < 3600) {
+            updateFalconNoise();
+            lastFalconScramble = now;
+          }
+          if (now - startTime < 3650) frameId = requestAnimationFrame(animate);
           else setFinalState();
         }
 
@@ -529,6 +587,8 @@
           falcon.classList.add("is-flying");
           startTime = 0;
           lastScramble = 0;
+          lastFalconScramble = 0;
+          updateFalconNoise();
           wordmark.classList.add("is-animating");
           slots.forEach(({ resolved, scrambled }) => {
             resolved.style.opacity = "0";
