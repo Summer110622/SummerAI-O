@@ -75,11 +75,19 @@
       }
       .site-nav a:hover { color: var(--accent); }
 
+      .story { position: relative; height: 300vh; }
       .hero {
-        position: relative;
-        padding: 125px 0 95px;
+        position: sticky;
+        top: 0;
+        width: 100vw;
+        height: 100vh;
+        min-height: 580px;
+        margin-left: calc(50% - 50vw);
+        padding: clamp(95px, 15vh, 140px) 0 70px;
+        overflow: clip;
         isolation: isolate;
       }
+      .hero-inner { position: relative; width: min(100% - 48px, 980px); margin: 0 auto; }
       .wordmark-wrap {
         position: relative;
         z-index: 2;
@@ -134,7 +142,7 @@
         width: 100vw;
         height: clamp(300px, 33vw, 440px);
         transform: translateX(-50%);
-        overflow: hidden;
+        overflow: visible;
         pointer-events: none;
       }
       .falcon {
@@ -147,6 +155,7 @@
         object-fit: contain;
         object-position: center;
         opacity: 1;
+        transform-origin: 65% 44%;
         transform: translate3d(calc(-50% + var(--flight-x, 0px)), var(--flight-y, 0px), 0) scale(var(--flight-scale, 1));
         will-change: transform, opacity;
       }
@@ -228,6 +237,37 @@
       }
       .hero-link:hover, .project:hover .project-arrow { text-decoration: underline; }
 
+      .eye-portal {
+        position: absolute;
+        z-index: 5;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        background: #fff;
+        clip-path: circle(var(--portal-radius, 0px) at 50% 50%);
+        pointer-events: none;
+      }
+      .portal-content {
+        width: min(100% - 48px, 780px);
+        opacity: var(--portal-content-opacity, 0);
+        transform: translateY(calc(28px * (1 - var(--portal-content-opacity, 0))));
+      }
+      .portal-eyebrow { color: var(--muted); font-size: 12px; letter-spacing: .18em; text-transform: uppercase; }
+      .portal-content h2 { font-size: clamp(45px, 7vw, 78px); letter-spacing: -.06em; margin: 16px 0 32px; }
+      .portal-preview { border-top: 1px solid var(--line); }
+      .portal-preview p {
+        margin: 0;
+        padding: 17px 0;
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+        border-bottom: 1px solid var(--line);
+        font-size: clamp(16px, 2vw, 22px);
+      }
+      .portal-preview span:first-child { min-width: 0; overflow-wrap: anywhere; }
+      .portal-preview span:last-child { color: var(--muted); font-size: 12px; letter-spacing: .09em; align-self: center; }
+      .portal-hint { margin-top: 27px; color: var(--muted); font-size: 14px; }
+
       .work { scroll-margin-top: 30px; }
       .work h2 {
         margin: 0;
@@ -307,7 +347,7 @@
         .site-name { font-size: 19px; }
         .site-nav { gap: 18px; }
         .site-nav a { font-size: 14px; }
-        .hero { padding: 112px 0 82px; }
+        .hero { min-height: 0; padding: 112px 0 82px; }
         .wordmark { font-size: clamp(37px, 9.5vw, 65px); }
         .ascii-cloud {
           top: -74px;
@@ -340,6 +380,9 @@
       }
       @media (prefers-reduced-motion: reduce) {
         html { scroll-behavior: auto; }
+        .story { height: auto; }
+        .hero { position: relative; height: auto; min-height: 0; overflow: clip; }
+        .eye-portal { display: none; }
         *, *::before, *::after {
           animation-duration: .01ms !important;
           transition-duration: .01ms !important;
@@ -369,7 +412,9 @@
     </header>
 
     <main id="top" class="container">
-      <section class="hero" aria-labelledby="wordmark">
+      <div class="story" id="story">
+      <section class="hero" id="hero" aria-labelledby="wordmark">
+        <div class="hero-inner">
         <div class="wordmark-wrap">
           <pre class="ascii-cloud" id="ascii-cloud" aria-hidden="true"></pre>
           <h1 class="wordmark" id="wordmark" aria-label="summerAI/O">summerAI/O</h1>
@@ -389,7 +434,21 @@
         </div>
         <p class="intro">AIを研究し、つくり、公開する。</p>
         <a class="hero-link" href="https://github.com/Summer110622/SummerAI-O" target="_blank" rel="noopener noreferrer">GitHubを見る <span aria-hidden="true">↗</span></a>
+        </div>
+        <div class="eye-portal" id="eye-portal" aria-hidden="true">
+          <div class="portal-content">
+            <span class="portal-eyebrow">summerAI/O / Portfolio</span>
+            <h2>Selected work.</h2>
+            <div class="portal-preview">
+              <p><span>Summer Delta Attention</span><span>RESEARCH</span></p>
+              <p><span>Diffusion-Qwen3.8-27B</span><span>MODELS</span></p>
+              <p><span>Japanese-English Corpus</span><span>DATASETS</span></p>
+            </div>
+            <p class="portal-hint">Scroll to explore ↓</p>
+          </div>
+        </div>
       </section>
+      </div>
 
       <section class="work" id="work" aria-labelledby="work-heading">
         <div class="work-header">
@@ -480,6 +539,10 @@
         const cloud = document.getElementById("ascii-cloud");
         const falcon = document.getElementById("falcon");
         const falconNoise = document.getElementById("falcon-noise");
+        const story = document.getElementById("story");
+        const hero = document.getElementById("hero");
+        const falconLane = document.querySelector(".falcon-lane");
+        const eyePortal = document.getElementById("eye-portal");
         const replay = document.getElementById("replay");
         const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
         const slots = [];
@@ -488,6 +551,8 @@
         let lastScramble = 0;
         let lastFalconScramble = 0;
         let scrollFrame = 0;
+        const clamp01 = (value) => Math.max(0, Math.min(1, value));
+        const ease = (value) => value * value * (3 - 2 * value);
 
         function updateFalconFlight() {
           scrollFrame = 0;
@@ -496,18 +561,29 @@
             falcon.style.removeProperty("--flight-y");
             falcon.style.removeProperty("--flight-scale");
             falcon.style.opacity = "1";
+            eyePortal.style.removeProperty("--portal-radius");
+            eyePortal.style.removeProperty("--portal-content-opacity");
             return;
           }
-          const scrollRange = Math.max(220, Math.min(360, window.innerHeight * .4));
-          const progress = Math.max(0, Math.min(1, window.scrollY / scrollRange));
-          const eased = progress * progress * (3 - 2 * progress);
+          const storyTop = story.getBoundingClientRect().top + window.scrollY;
+          const scrollRange = Math.max(1, story.offsetHeight - hero.offsetHeight);
+          const progress = clamp01((window.scrollY - storyTop) / scrollRange);
+          const crossing = ease(clamp01(progress / .32));
+          const zoom = ease(clamp01((progress - .32) / .36));
+          const portalOpen = ease(clamp01((progress - .68) / .2));
           const birdWidth = falcon.offsetWidth;
           const startX = -window.innerWidth * .5 - birdWidth * .28;
-          const endX = window.innerWidth * .5 + birdWidth * .58;
-          falcon.style.setProperty("--flight-x", (startX + (endX - startX) * eased).toFixed(1) + "px");
-          falcon.style.setProperty("--flight-y", (-55 * eased).toFixed(1) + "px");
-          falcon.style.setProperty("--flight-scale", (1 - .12 * eased).toFixed(3));
-          falcon.style.opacity = String(Math.max(0, Math.min(1, (1 - eased) * 6)));
+          // At the end of the crossing, align the falcon's eye with the screen center.
+          const eyeX = -birdWidth * .15;
+          const laneTop = falconLane.getBoundingClientRect().top - hero.getBoundingClientRect().top;
+          const eyeY = window.innerHeight * .5 - laneTop - falcon.offsetHeight * .44;
+          falcon.style.setProperty("--flight-x", (startX + (eyeX - startX) * crossing).toFixed(1) + "px");
+          falcon.style.setProperty("--flight-y", (eyeY * crossing).toFixed(1) + "px");
+          falcon.style.setProperty("--flight-scale", (1 + 18 * zoom).toFixed(3));
+          falcon.style.opacity = "1";
+          const fullRadius = Math.hypot(window.innerWidth, window.innerHeight);
+          eyePortal.style.setProperty("--portal-radius", (fullRadius * portalOpen).toFixed(1) + "px");
+          eyePortal.style.setProperty("--portal-content-opacity", clamp01((progress - .75) / .13).toFixed(3));
         }
 
         function requestFalconFlight() {
