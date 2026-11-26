@@ -1,0 +1,7 @@
+Tokenizer,Vocabulary,Total tokens,Encoding MB/s
+"Custom 64K",65536,4345877,4.494
+"Custom Global 264,498",264498,2469598,4.852
+"kototok Strict",281630,3553917,5.993
+"kototok Balanced",281630,3748609,5.939
+"kototok Compress",281630,3833543,5.402
+"kototok BKO3",264498,3520385,5.448
