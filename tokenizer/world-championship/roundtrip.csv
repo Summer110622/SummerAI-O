@@ -1,0 +1,16 @@
+Tokenizer,ExactDocs,Documents,Roundtrip %,Valid Domains
+"Custom 64K",2434,2434,100,68
+"Custom Global 264,498",2434,2434,100,68
+"DeepSeek-V3",2434,2434,100,68
+"GPT-2",2434,2434,100,68
+"GPT-4",2434,2434,100,68
+"GPT-4o / GPT-5",2434,2434,100,68
+"GPT-OSS",2434,2434,100,68
+"Mistral NeMo",2434,2434,100,68
+"Phi-4",2434,2434,100,68
+"Qwen3",2434,2434,100,68
+"Sarashina2.2",2434,2434,100,68
+"kototok BKO3",2434,2434,100,68
+"kototok Balanced",2434,2434,100,68
+"kototok Compress",2434,2434,100,68
+"kototok Strict",2434,2434,100,68

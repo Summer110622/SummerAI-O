@@ -1,0 +1,3 @@
+# World Tokenizer Championship
+
+Data transcribed from the supplied `world-championship.zip` benchmark CSVs. All 15 total counts, 45 category totals, 15 domain-win counts and head-to-head win counts were cross-checked. 68 domains, 2,434 documents, 10,815,046 bytes. Related tokenizer configurations are counted separately. Llama 3.1, Gemma 3 and Aya Expanse were excluded due to gated repository access (403). The seven original PNGs are represented by six responsive HTML charts and the full multi-domain table on the Playground. Raw per-domain timing records and original PNG binaries are not included. Results measure tokenization, not model capability. The evaluation is held out from Custom Global's training corpus; other tokenizer training overlap is unknown.

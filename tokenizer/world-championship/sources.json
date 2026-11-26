@@ -1,0 +1,11 @@
+{
+  "GPT-4o / GPT-5": "o200k_base",
+  "GPT-4": "cl100k_base",
+  "GPT-OSS": "o200k_harmony",
+  "GPT-2": "gpt2",
+  "Qwen3": "Qwen/Qwen3-8B",
+  "DeepSeek-V3": "deepseek-ai/DeepSeek-V3",
+  "Mistral NeMo": "mistralai/Mistral-Nemo-Base-2407",
+  "Phi-4": "microsoft/phi-4",
+  "Sarashina2.2": "sbintuitions/sarashina2.2-3b"
+}
