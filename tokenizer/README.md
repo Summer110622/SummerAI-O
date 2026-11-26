@@ -6,11 +6,11 @@ Browser-only multilingual Byte-Level BPE tokenizer (264,498 entries, 264,232 mer
 
 Open `/tokenizer/`. If the official model is not hosted yet, choose the original `Custom-Global-264K-HF.zip` or its extracted `tokenizer.json` in the file picker. ZIP support requires browser DecompressionStream (deflate-raw); otherwise use the extracted JSON.
 
-To make the page load the model automatically, upload the original `tokenizer.json` into this directory. Do not replace it with the 64K model. The original file is 21,450,501 bytes with SHA-256:
+The page automatically loads the original `tokenizer.json` from the repository root (`../tokenizer.json`). Do not replace it with the 64K model. The original file is 21,450,501 bytes with SHA-256:
 
 `182d590a84060a0b0744005147fb91f66389c230e225f2dde89e218170e45cec`
 
-The model data is not included in this PR because the connector cannot transfer the attached local file. The file picker is fully local and is also useful for offline/private use when served from localhost.
+The original model has been uploaded to the repository root. The file picker remains available for local use when served from localhost.
 
 ## Verification
 
