@@ -6,7 +6,10 @@ const EXPECTED=21450501, MAX=32*1024*1024;
 const te=new TextEncoder(), td=new TextDecoder("utf-8",{fatal:true,ignoreBOM:true});
 let engine=null,timer,loadGeneration=0,latestIds=[];
 const samples={ja:"人工知能を研究しています。日本語の文章を効率的にトークン化します。",en:"Artificial intelligence is transforming society. Researchers are developing new technologies.",multi:"日本語 · 中文 · 한국어 · العربية · हिन्दी · ภาษาไทย · မြန်မာစာ · Ελληνικά · 🚀",code:"def fibonacci(n):\n    a, b = 0, 1\n    for _ in range(n):\n        a, b = b, a + b\n    return a\n"};
-const colors=["#dceafe","#fce6ce","#d8f2df","#eadffb","#fbdfe4","#d6f1f1","#f9f0be"];
+const COLOR_COUNT=8;
+function placeholder(message){const node=document.createElement("span");node.className="empty";node.textContent=message;$("tokens").replaceChildren(node);}
+function syncIds(){$("tokens").classList.toggle("show-ids",$("show-ids").checked);}
+$("show-ids").addEventListener("change",syncIds);syncIds();
 function status(message,error=false,ready=false){$("status").textContent=message;$("status").dataset.error=String(error);$("status").dataset.ready=String(ready);}
 function enable(ok){for(const id of ["copy","download","decode"])$(id).disabled=!ok;}
 async function extractZip(buffer){
@@ -50,9 +53,9 @@ async function load(buffer,generation){
   engine=candidate;enable(true);status("Ready · verified original model · "+fixtures.length+" reference checks passed",false,true);render();
 }
 async function select(file){
-  const generation=++loadGeneration;enable(false);engine=null;status("Reading "+file.name+"…");
+  const generation=++loadGeneration;enable(false);engine=null;placeholder("Loading selected tokenizer…");status("Reading "+file.name+"…");
   try{if(file.size>MAX)throw Error("File is too large.");let data=await file.arrayBuffer();if(file.name.toLowerCase().endsWith(".zip"))data=await extractZip(data);await load(data,generation);}
-  catch(e){if(generation===loadGeneration){status(e.message,true);$("roundtrip").textContent="Model not loaded";}}
+  catch(e){if(generation===loadGeneration){status(e.message,true);$("roundtrip").textContent="Model not loaded";placeholder("Unable to load tokenizer. Check the message above or select the original model file.");}}
 }
 function visible(s){return s.replace(/ /g,"␠").replace(/\n/g,"↵\n").replace(/\r/g,"␍").replace(/\t/g,"⇥");}
 function render(){
@@ -65,8 +68,17 @@ function render(){
     $("roundtrip").textContent=ok?"Exact roundtrip ✓":"Roundtrip mismatch";$("roundtrip").dataset.error=String(!ok);
     $("ids").value=ids.join(", ");$("decoded").value=decoded;
     const frag=document.createDocumentFragment();
-    for(let i=0;i<Math.min(ids.length,1500);i++){const span=document.createElement("span");span.className="piece";span.style.background=colors[i%colors.length];span.textContent=visible(engine.label(ids[i]));span.title="Token "+i+" · ID "+ids[i];frag.append(span);}
-    $("tokens").replaceChildren(frag);$("shown").textContent=(ids.length>1500?"Showing first 1,500 of "+ids.length.toLocaleString()+" tokens. ":"")+"Hover for IDs; partial UTF-8 pieces are shown as hex bytes.";
+    for(let i=0;i<Math.min(ids.length,1500);i++){
+      const id=ids[i],span=document.createElement("span"),label=document.createElement("span"),badge=document.createElement("span");
+      span.className="piece token-color-"+(i%COLOR_COUNT);
+      const piece=visible(engine.label(id));
+      label.className="token-text";label.textContent=piece||"∅";
+      badge.className="token-id";badge.textContent="#"+id;
+      span.title="Token "+(i+1)+" · ID "+id;
+      span.append(label,badge);frag.append(span);
+    }
+    if(ids.length){$("tokens").replaceChildren(frag);}else{placeholder("Enter text to see the colored token blocks.");}
+    syncIds();$("shown").textContent=(ids.length>1500?"Showing first 1,500 of "+ids.length.toLocaleString()+" tokens. ":"")+"Each colored block represents one token. Spaces and control characters are marked; partial UTF-8 pieces are shown as hex bytes.";
   }catch(e){$("roundtrip").textContent=e.message;$("roundtrip").dataset.error="true";}
 }
 function parseIds(){const s=$("ids").value.trim();if(!s)return [];let a;if(s.startsWith("[")){a=JSON.parse(s);if(!Array.isArray(a))throw Error("Expected an array of token IDs.");}else a=s.split(/[\s,]+/).map(x=>{if(!/^\d+$/.test(x))throw Error("Invalid token ID: "+x);return Number(x);});if(a.length>200000||a.some(x=>!Number.isInteger(x)||x<0||x>=264498))throw Error("Invalid or excessive token IDs.");return a;}
@@ -78,4 +90,21 @@ $("decode").addEventListener("click",()=>{try{$("decoded").value=engine.decode(p
 $("copy").addEventListener("click",async()=>{try{await navigator.clipboard.writeText($("ids").value);$("copy").textContent="Copied";setTimeout(()=>$("copy").textContent="Copy IDs",1200);}catch{$("ids").select();}});
 $("download").addEventListener("click",()=>{try{const url=URL.createObjectURL(new Blob([JSON.stringify(parseIds())],{type:"application/json"}));const a=document.createElement("a");a.href=url;a.download="token-ids.json";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}catch(e){$("roundtrip").textContent=e.message;}});
 render();enable(false);
-(async()=>{const generation=++loadGeneration;try{const r=await fetch("../tokenizer.json");if(!r.ok)throw Error("No hosted model");await load(await r.arrayBuffer(),generation);}catch(e){if(generation===loadGeneration)status("Automatic loading failed: "+e.message+". Select the original ZIP or tokenizer.json to continue locally.",true);}})();
+(async()=>{
+  const generation=++loadGeneration;
+  const errors=[];
+  // The original asset is in tokenizer/tokenizer.json; retain root fallback.
+  for(const path of ["./tokenizer.json","../tokenizer.json"]){
+    if(generation!==loadGeneration)return;
+    try{
+      const r=await fetch(path,{cache:"no-cache"});
+      if(!r.ok)throw Error("HTTP "+r.status);
+      await load(await r.arrayBuffer(),generation);
+      return;
+    }catch(e){errors.push(path+": "+e.message);}
+  }
+  if(generation===loadGeneration){
+    status("Automatic loading failed: "+errors.join(" | ")+". Select the original ZIP or tokenizer.json to continue locally.",true);
+    placeholder("Tokenizer could not be loaded. Select the original model above.");
+  }
+})();
